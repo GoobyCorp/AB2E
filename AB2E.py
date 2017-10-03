@@ -4,6 +4,7 @@
 from os import urandom
 from io import BytesIO
 from os.path import isfile
+from binascii import unhexlify
 from struct import unpack, pack
 from hashlib import sha1, sha256
 from argparse import ArgumentParser
@@ -86,10 +87,6 @@ CARD_LEVEL_MAX_TOKENS = 1194350
 #key info
 KEY_FILE = "xor_key.bin"
 KEY_HASH = "ed2c60e414cfcb401ead9540bd0b716c2a898f38"
-
-assert isfile(KEY_FILE), "Key file (%s) is required!" % (KEY_FILE)
-l_433 = open(KEY_FILE, "rb").read()
-assert len(l_433) == 0x100 and sha1(l_433).hexdigest() == KEY_HASH, "Key file is invalid!"
 
 def dumps(o: object) -> str:
     """
@@ -305,6 +302,7 @@ if __name__ == "__main__":
     group_required.add_argument("-i", "--in-file", type=str, required=True, help="The input file")
     parser.add_argument("-o", "--out-file", type=str, default="modded.sav", help="The output file")
     parser.add_argument("--index-file", type=str, default="index", help="The index file to use for encryption/decryption")
+    parser.add_argument("--key", type=str, help="The xor key in hex aka l_433")
 
     #ints
     parser.add_argument("--gems", type=int, help="The amount of gems you want")
@@ -318,6 +316,15 @@ if __name__ == "__main__":
 
     assert isfile(args.in_file), "Input file not found!"
     assert isfile(args.index_file), "\"index\" file not found!"
+
+
+    if args.key is not None:
+        l_433 = unhexlify(args.key)
+    elif isfile(KEY_FILE):
+        l_433 = open(KEY_FILE, "rb").read()
+    else:
+        raise Exception("The XOR key xor_key.bin or as --key command line parameter was not specified")
+    assert len(l_433) == 0x100 and sha1(l_433).hexdigest() == KEY_HASH, "Key file is invalid!"
 
     #load the save
     save = AB2_SAVE(decrypt_save_file(args.in_file, index_path=args.index_file))
