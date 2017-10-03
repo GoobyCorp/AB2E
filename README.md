@@ -12,7 +12,7 @@ Android -> `/storage/emulated/0/Android/data/com.rovio.baba/files/save/`
 
 This requires the files `B4F59D3E9582F13D98B85102B4003E377A9434837B71846F44C05637D2613FA1` and `index` from your device.
 
-There is a file called `xor_key.bin` that I'm not going to provide for legal reasons so you will have to find that yourself.
+There is a file called `xor_key.bin` or the `--key` argument that I'm not going to provide for legal reasons so you will have to find that yourself (it's easy to find, google it).
 
 Usage is as follows:
 ```
