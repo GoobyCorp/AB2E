@@ -498,8 +498,8 @@ def main() -> None:
 	elif isfile(KEY_FILE):
 		XOR_KEY = read_file(KEY_FILE)
 	else:
-		raise Exception("The XOR key xor_key.bin or --key command line parameter was not specified")
-	assert len(XOR_KEY) == 0x100 and sha1(XOR_KEY).hexdigest() == KEY_HASH, "Key file is invalid!"
+		raise Exception("The XOR key xor_key.bin or -k/--key command line parameter was not specified")
+	assert len(XOR_KEY) == 0x100 and sha1(XOR_KEY).hexdigest() == KEY_HASH, "The specified XOR key is invalid!"
 
 	# load the save
 	save = AB2Save(decrypt_save_file(args.in_file, index_path=args.index_file))
