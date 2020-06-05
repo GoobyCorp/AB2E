@@ -39,3 +39,5 @@ required arguments:
   -i IN_FILE, --in-file IN_FILE
                         The input file
 ```
+
+**Disclaimer: I'm not responsible if you manage to get yourself banned using this!**
