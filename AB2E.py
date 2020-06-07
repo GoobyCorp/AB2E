@@ -473,25 +473,31 @@ def main() -> None:
 
 	parser = ArgumentParser(description="A script for modding Angry Birds 2 saves")
 
-	# commands
-	group_required = parser.add_argument_group("required arguments")
-	group_required.add_argument("-i", "--in-file", type=str, required=True, help="The input file")
-	parser.add_argument("-o", "--out-file", type=str, default="modded.sav", help="The output file")
-	parser.add_argument("--index-file", type=str, default="index", help="The index file to use for encryption/decryption")
+	# subcommands
+	subparsers = parser.add_subparsers(dest="command")
+	modify_parser = subparsers.add_parser("modify")
+	decrypt_parser = subparsers.add_parser("decrypt")
+	encrypt_parser = subparsers.add_parser("encrypt")
+
+	# all parsers
+	parser.add_argument("in-file", type=str, help="The input file")
+	parser.add_argument("-o", "--out-file", type=str, help="The output file")
+	parser.add_argument("-i", "--index-file", type=str, default="index", help="The index file to use for encryption/decryption")
 	parser.add_argument("-k", "--key", type=str, help="The xor key in hex aka l_433")
 
 	# ints
-	parser.add_argument("--gems", type=int, help="The amount of gems you want")
-	parser.add_argument("--pearls", type=int, help="The amount of black pearls you want")
-	parser.add_argument("--spells", type=int, help="The amount of spells you want")
-	parser.add_argument("--tickets", type=int, help="The amount of arena tickets you want")
+	modify_parser.add_argument("--gems", type=int, help="The amount of gems you want")
+	modify_parser.add_argument("--pearls", type=int, help="The amount of black pearls you want")
+	modify_parser.add_argument("--spells", type=int, help="The amount of spells you want")
+	modify_parser.add_argument("--tickets", type=int, help="The amount of arena tickets you want")
 	# bools
-	parser.add_argument("--all-hats", action="store_true", help="Give all hats")
-	parser.add_argument("--max-cards", action="store_true", help="Max all card levels")
+	modify_parser.add_argument("--all-hats", action="store_true", help="Give all hats")
+	modify_parser.add_argument("--max-cards", action="store_true", help="Max all card levels")
+
 	args = parser.parse_args()
 
-	assert isfile(args.in_file), "Input file not found!"
-	assert isfile(args.index_file), "\"index\" file not found!"
+	#assert isfile(args.in_file), "Input file not found!"
+	#assert isfile(args.index_file), "\"index\" file not found!"
 
 	if args.key is not None:
 		XOR_KEY = unhexlify(args.key)
@@ -501,41 +507,47 @@ def main() -> None:
 		raise Exception("The XOR key xor_key.bin or -k/--key command line parameter was not specified")
 	assert len(XOR_KEY) == 0x100 and sha1(XOR_KEY).hexdigest() == KEY_HASH, "The specified XOR key is invalid!"
 
-	# load the save
-	save = AB2Save(decrypt_save_file(args.in_file, index_path=args.index_file))
-	# set gems
-	if args.gems and args.gems > 0:
-		save.wallet["Gems"] = args.gems
-	# set pearls
-	if args.pearls and args.pearls > 0:
-		save.wallet["SecondaryCurrency"] = args.pearls
-	# set spells
-	if args.spells and args.spells > 0:
-		for x in range(0, len(save.newspellcollection["Spells"])):
-			tmp = save.newspellcollection["Spells"][x]
-			tmp["Count"] = args.spells
-			save.newspellcollection["Spells"][x] = tmp
-	# set arena tickets
-	if args.tickets and args.tickets > 0:
-		save.arenaplayerstate["ConsumableTicketCount"] = 9999
-		save.arenaplayerstate["HasTicket"] = True
-	# give all costumes
-	if args.all_hats:
-		all_costumes = []
-		for bird in BIRD_IDS:
-			for costume in COSTUME_IDS:
-				all_costumes.append({"BirdId": bird, "SetId": costume})
-		save.costumedata["OwnedParts"] = all_costumes
-	# max card levels
-	if args.max_cards:
-		for x in range(0, len(save.cardspeccollection["CardSpecifications"])):
-			tmp = save.cardspeccollection["CardSpecifications"][x]
-			tmp["Level"] = CARD_LEVEL_MAX
-			tmp["Tokens"] = CARD_LEVEL_MAX_TOKENS
-			save.cardspeccollection["CardSpecifications"][x] = tmp
+	if args.command == "modify":
+		# load the save
+		save = AB2Save(decrypt_save_file(args.in_file, index_path=args.index_file))
 
-	# write the save to a file
-	write_file(args.out_file, encrypt_save(save.get_json(), args.index_file))
+		# set gems
+		if args.gems and args.gems > 0:
+			save.wallet["Gems"] = args.gems
+		# set pearls
+		if args.pearls and args.pearls > 0:
+			save.wallet["SecondaryCurrency"] = args.pearls
+		# set spells
+		if args.spells and args.spells > 0:
+			for x in range(0, len(save.newspellcollection["Spells"])):
+				tmp = save.newspellcollection["Spells"][x]
+				tmp["Count"] = args.spells
+				save.newspellcollection["Spells"][x] = tmp
+		# set arena tickets
+		if args.tickets and args.tickets > 0:
+			save.arenaplayerstate["ConsumableTicketCount"] = 9999
+			save.arenaplayerstate["HasTicket"] = True
+		# give all costumes
+		if args.all_hats:
+			all_costumes = []
+			for bird in BIRD_IDS:
+				for costume in COSTUME_IDS:
+					all_costumes.append({"BirdId": bird, "SetId": costume})
+			save.costumedata["OwnedParts"] = all_costumes
+		# max card levels
+		if args.max_cards:
+			for x in range(0, len(save.cardspeccollection["CardSpecifications"])):
+				tmp = save.cardspeccollection["CardSpecifications"][x]
+				tmp["Level"] = CARD_LEVEL_MAX
+				tmp["Tokens"] = CARD_LEVEL_MAX_TOKENS
+				save.cardspeccollection["CardSpecifications"][x] = tmp
+
+		# write the save to a file
+		write_file(args.in_file if args.out_file is None else args.out_file, encrypt_save(save.get_json(), args.index_file))
+	elif args.command == "decrypt":
+		decrypt_save_file(args.in_file, args.out_file, args.index_file)
+	elif args.command == "encrypt":
+		encrypt_save_file(args.in_file, args.out_file, args.index_file)
 
 if __name__ == "__main__":
 	main()

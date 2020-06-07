@@ -16,28 +16,22 @@ There is a file called `xor_key.bin` or the `-k/--key` argument that I'm not goi
 
 Usage is as follows:
 ```
-usage: AB2E.py [-h] -i IN_FILE [-o OUT_FILE] [--index-file INDEX_FILE]
-               [--gems GEMS] [--pearls PEARLS] [--spells SPELLS]
-               [--tickets TICKETS] [--all-hats] [--max-cards]
+usage: AB2E.py [-h] [-o OUT_FILE] [-i INDEX_FILE] [-k KEY]
+               {modify,decrypt,encrypt} ... in-file
 
 A script for modding Angry Birds 2 saves
+
+positional arguments:
+  {modify,decrypt,encrypt}
+  in-file               The input file
 
 optional arguments:
   -h, --help            show this help message and exit
   -o OUT_FILE, --out-file OUT_FILE
                         The output file
-  --index-file INDEX_FILE
+  -i INDEX_FILE, --index-file INDEX_FILE
                         The index file to use for encryption/decryption
-  --gems GEMS           The amount of gems you want
-  --pearls PEARLS       The amount of black pearls you want
-  --spells SPELLS       The amount of spells you want
-  --tickets TICKETS     The amount of arena tickets you want
-  --all-hats            Give all hats
-  --max-cards           Max all card levels
-
-required arguments:
-  -i IN_FILE, --in-file IN_FILE
-                        The input file
+  -k KEY, --key KEY     The xor key in hex aka l_433
 ```
 
 **Disclaimer: I'm not responsible if you manage to get yourself banned using this!**
