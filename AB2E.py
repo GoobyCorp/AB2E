@@ -417,7 +417,7 @@ def decrypt_save_file(in_file: str, out_file: str = None, index_path: str = "ind
 	assert isfile(in_file), "Input file missing!"
 	dec_save_game = decrypt_save(read_file(in_file), index_path)
 	if out_file is None:
-		return dec_save_game
+		write_file(in_file, dec_save_game)
 	else:
 		write_file(out_file, dec_save_game)
 
@@ -434,7 +434,7 @@ def encrypt_save_file(in_file: str, out_file: str = None, index_path: str = "ind
 	assert is_json(save_json), "Invalid JSON data!"
 	enc_save_game = encrypt_save(save_json, index_path)
 	if out_file is None:
-		return enc_save_game
+		write_file(in_file, enc_save_game)
 	else:
 		write_file(out_file, enc_save_game)
 
@@ -509,24 +509,28 @@ def main() -> None:
 
 	if args.command == "modify":
 		# load the save
-		save = AB2Save(decrypt_save_file(args.in_file, index_path=args.index_file))
+		save = AB2Save(decrypt_save(read_file(args.in_file), index_path=args.index_file))
 
 		# set gems
 		if args.gems and args.gems > 0:
 			save.wallet["Gems"] = args.gems
+
 		# set pearls
 		if args.pearls and args.pearls > 0:
 			save.wallet["SecondaryCurrency"] = args.pearls
+
 		# set spells
 		if args.spells and args.spells > 0:
 			for x in range(0, len(save.newspellcollection["Spells"])):
 				tmp = save.newspellcollection["Spells"][x]
 				tmp["Count"] = args.spells
 				save.newspellcollection["Spells"][x] = tmp
+
 		# set arena tickets
 		if args.tickets and args.tickets > 0:
 			save.arenaplayerstate["ConsumableTicketCount"] = 9999
 			save.arenaplayerstate["HasTicket"] = True
+
 		# give all costumes
 		if args.all_hats:
 			all_costumes = []
@@ -534,6 +538,7 @@ def main() -> None:
 				for costume in COSTUME_IDS:
 					all_costumes.append({"BirdId": bird, "SetId": costume})
 			save.costumedata["OwnedParts"] = all_costumes
+
 		# max card levels
 		if args.max_cards:
 			for x in range(0, len(save.cardspeccollection["CardSpecifications"])):
