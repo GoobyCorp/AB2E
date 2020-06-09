@@ -33,6 +33,62 @@ from Crypto.Util.Padding import pad, unpad
 # A664CA94E883A423A522AE9778BDB3B1379BD7FC72E90CCA361B1396E3BEC2E1 - LastTimeBundleWasRefreshed
 # E266F162807E3EB7692756371F9BD111A2D4FF29E26DBE9C982160A93E9FBB11 - HockeyAndroidCurrentAppInfo
 
+"""
+Leveling Table:
+
+(Level) = (Tokens)
+0 = 0
+1 = 100
+2 = 350
+3 = 900
+4 = 1850
+5 = 3250
+6 = 4850
+7 = 6650
+8 = 8550
+9 = 10650
+10 = 12950
+11 = 15350
+12 = 17950
+13 = 20850
+14 = 23950
+15 = 27250
+16 = 30750
+17 = 34450
+18 = 38350
+19 = 43350
+20 = 49350
+21 = 56350
+22 = 65350
+23 = 77350
+24 = 92350
+25 = 109350
+26 = 127350
+27 = 146350
+28 = 169350
+29 = 199350
+30 = 234350
+31 = 274350
+32 = 324350
+33 = 374350
+34 = 424350
+35 = 474350
+36 = 524350
+37 = 574350
+38 = 624350
+39 = 674350
+40 = 724350
+41 = 774350
+42 = 824350
+43 = 874350
+44 = 924350
+45 = 974350
+46 = 1024350
+47 = 1094350
+48 = 1124350
+49 = 1194350
+"""
+
 # save locations
 # ls -R /var/mobile/Containers/Data/Application/ | grep "Documents\/save"
 DIR_ANDROID = "/storage/emulated/0/Android/data/com.rovio.baba/files/save/"
@@ -406,13 +462,13 @@ def encrypt_save(data: str, index_path: str = "index") -> (bytes, bytearray):
 	b = b"".join([x.encode("UTF8") + b"\x00" for x in data])
 	return aes.encrypt(bytes(pad(b, AES.block_size)))
 
-def decrypt_save_file(in_file: str, out_file: str = None, index_path: str = "index") -> (str, None):
+def decrypt_save_file(in_file: str, out_file: str = None, index_path: str = "index") -> None:
 	"""
-	Decrypt a save file directly
+	Decrypt a save file
 	:param in_file: the input save file
 	:param out_file: the output JSON file
 	:param index_path: the path to the index file
-	:return: string if out_file not specified, otherwise it's written to a file
+	:return: None
 	"""
 	assert isfile(in_file), "Input file missing!"
 	dec_save_game = decrypt_save(read_file(in_file), index_path)
@@ -421,13 +477,13 @@ def decrypt_save_file(in_file: str, out_file: str = None, index_path: str = "ind
 	else:
 		write_file(out_file, dec_save_game)
 
-def encrypt_save_file(in_file: str, out_file: str = None, index_path: str = "index") -> (bytes, bytearray, None):
+def encrypt_save_file(in_file: str, out_file: str = None, index_path: str = "index") -> None:
 	"""
-	Encrypt a JSON file directly
+	Encrypt a JSON file
 	:param in_file: the input JSON file
 	:param out_file: the output save file
 	:param index_path: the path to the index file
-	:return: bytes/bytearray if out_file not specified, otherwise it's written to a file
+	:return: None
 	"""
 	assert isfile(in_file), "Input file missing!"
 	save_json = read_file(in_file, True)
